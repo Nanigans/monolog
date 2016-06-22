@@ -592,10 +592,9 @@ class LoggerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * If we set a parent logger and one of our handlers is set to not bubble,
-     * we still expect the message to get sent to the parent logger. However,
-     * we do NOT expect the record to get processed by any handlers under the
-     * non-bubbling handler.
+     * If we set a parent logger and both the parent and the child have group
+     * handlers, both the parent and child should handle the message regardless
+     * of the bubble settings on the handlers in each GroupHandler.
      *
      * @covers Monolog\Logger::addRecord
      */
@@ -620,14 +619,17 @@ class LoggerTest extends \PHPUnit_Framework_TestCase
             )
         );
 
-        $childLogger->pushHandler($parentGroupHandler);
         $childLogger->pushHandler($childGroupHandler);
 
+        $parentLogger = new Logger('parent');
+        $parentLogger->pushHandler($parentGroupHandler);
+        $childLogger->setParent($parentLogger);
+
         $this->assertTrue($childLogger->warn('foo'));
-        $this->assertFalse($bubblingChildHandler->hasRecordThatMatches('/^foo$/', Logger::WARNING));
+        $this->assertTrue($bubblingChildHandler->hasRecordThatMatches('/^foo$/', Logger::WARNING));
         $this->assertTrue($nonBubblingChildHandler->hasRecordThatMatches('/^foo$/', Logger::WARNING));
         $this->assertTrue($nonBubblingParentHandler->hasRecordThatMatches('/^foo$/', Logger::WARNING));
-        $this->assertFalse($bubblingParentHandler->hasRecordThatMatches('/^foo$/', Logger::WARNING));
+        $this->assertTrue($bubblingParentHandler->hasRecordThatMatches('/^foo$/', Logger::WARNING));
     }
 
     /**
