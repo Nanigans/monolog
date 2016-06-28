@@ -150,4 +150,33 @@ class RegistryTest extends \PHPUnit_Framework_TestCase
 
         Registry::addLogger($log2, 'log');
     }
+
+    /**
+     * @covers Monolog\Registry::addOption
+     * @covers Monolog\Registry::hasOption
+     * @covers Monolog\Registry::getOption
+     */
+    public function testAddOption()
+    {
+        $option1 = 'string';
+        $option2 = false;
+        $option3 = 6;
+        $option4 = true;
+
+        Registry::addOption('option1', 'string');
+        Registry::addOption('option2', false);
+        Registry::addOption('option3', 6);
+        Registry::addOption('option4'); // Should be true by default
+
+        $this->assertSame(true, Registry::hasOption('option1'));
+        $this->assertSame(true, Registry::hasOption('option2'));
+        $this->assertSame(true, Registry::hasOption('option3'));
+        $this->assertSame(true, Registry::hasOption('option4'));
+        $this->assertSame(false, Registry::hasOption('option5'));
+
+        $this->assertSame($option1, Registry::getOption('option1'));
+        $this->assertSame($option2, Registry::getOption('option2'));
+        $this->assertSame($option3, Registry::getOption('option3'));
+        $this->assertSame($option4, Registry::getOption('option4'));
+    }
 }
