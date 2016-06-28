@@ -16,7 +16,7 @@ use InvalidArgumentException;
 /**
  * Monolog log registry
  *
- * Allows to get `Logger` instances in the global scope
+ * Allows to get `Logger` instances and run-time options in the global scope
  * via static method calls on this class.
  *
  * <code>
@@ -45,6 +45,13 @@ class Registry
     private static $loggers = array();
 
     /**
+     * List of all run-time config options for loggers
+     *
+     * @var array()
+     */
+    private static $options = array();
+
+    /**
      * Adds new logging channel to the registry
      *
      * @param  Logger                    $logger    Instance of the logging channel
@@ -64,6 +71,17 @@ class Registry
     }
 
     /**
+     * Adds new run-time logging option to the registry
+     *
+     * @param  string $key    Instance of the logging channel
+     * @param  bool|int|string $value
+     */
+    public static function addOption($key, $value = true)
+    {
+        self::$options[$key] = $value;
+    }
+
+    /**
      * Checks if such logging channel exists by name or instance
      *
      * @param string|Logger $logger Name or logger instance
@@ -77,6 +95,17 @@ class Registry
         } else {
             return isset(self::$loggers[$logger]);
         }
+    }
+
+    /**
+     * Checks if such run-time option exists
+     *
+     * @param string $name key of the option
+     * @return bool
+     */
+    public static function hasOption($name)
+    {
+        return isset(self::$options[$name]);
     }
 
     /**
@@ -96,7 +125,7 @@ class Registry
     }
 
     /**
-     * Clears the registry
+     * Clears the registry of loggers
      */
     public static function clear()
     {
@@ -117,6 +146,22 @@ class Registry
         }
 
         return self::$loggers[$name];
+    }
+
+    /**
+     * Gets run-time option from the registry
+     *
+     * @param  string $name              Name of the requested run-time option
+     * @throws \InvalidArgumentException If named option is not in the registry
+     * @return bool|int|string           Value of requested run-time option
+     */
+    public static function getOption($name)
+    {
+        if (!isset(self::$options[$name])) {
+            throw new InvalidArgumentException(sprintf('Requested "%s" option is not in the registry', $name));
+        }
+
+        return self::$options[$name];
     }
 
     /**
