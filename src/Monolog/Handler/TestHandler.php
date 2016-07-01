@@ -135,6 +135,7 @@ class TestHandler extends AbstractProcessingHandler
         }, $level);
     }
 
+
     /**
      * {@inheritdoc}
      */
