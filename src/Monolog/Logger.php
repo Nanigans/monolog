@@ -316,7 +316,6 @@ class Logger implements LoggerInterface
      * @param  int     $level   The logging level
      * @param  string  $message The log message
      * @param  array   $context The log context
-     * @param  string  $sourceChannel  The name of the original channel the log came from
      * @return Boolean Whether the record has been processed
      */
     public function addRecord($level, $message, array $context = array(), $sourceChannel = null)
@@ -402,12 +401,11 @@ class Logger implements LoggerInterface
      *
      * @param  string  $message The log message
      * @param  array   $context The log context
-     * @param  string  $sourceChannel  The original source of the log message
      * @return Boolean Whether the record has been processed
      */
-    public function addDebug($message, array $context = array(), $sourceChannel = null)
+    public function addDebug($message, array $context = array())
     {
-        return $this->addRecord(static::DEBUG, $message, $context, $sourceChannel);
+        return $this->addRecord(static::DEBUG, $message, $context, $this->name);
     }
 
     /**
@@ -415,12 +413,11 @@ class Logger implements LoggerInterface
      *
      * @param  string  $message The log message
      * @param  array   $context The log context
-     * @param  string  $sourceChannel  The original source of the log message
      * @return Boolean Whether the record has been processed
      */
-    public function addInfo($message, array $context = array(), $sourceChannel = null)
+    public function addInfo($message, array $context = array())
     {
-        return $this->addRecord(static::INFO, $message, $context, $sourceChannel);
+        return $this->addRecord(static::INFO, $message, $context, $this->name);
     }
 
     /**
@@ -428,12 +425,11 @@ class Logger implements LoggerInterface
      *
      * @param  string  $message The log message
      * @param  array   $context The log context
-     * @param  string  $sourceChannel  The original source of the log message
      * @return Boolean Whether the record has been processed
      */
-    public function addNotice($message, array $context = array(), $sourceChannel = null)
+    public function addNotice($message, array $context = array())
     {
-        return $this->addRecord(static::NOTICE, $message, $context, $sourceChannel);
+        return $this->addRecord(static::NOTICE, $message, $context, $this->name);
     }
 
     /**
@@ -441,12 +437,11 @@ class Logger implements LoggerInterface
      *
      * @param  string  $message The log message
      * @param  array   $context The log context
-     * @param  string  $sourceChannel  The original source of the log message
      * @return Boolean Whether the record has been processed
      */
-    public function addWarning($message, array $context = array(), $sourceChannel = null)
+    public function addWarning($message, array $context = array())
     {
-        return $this->addRecord(static::WARNING, $message, $context, $sourceChannel);
+        return $this->addRecord(static::WARNING, $message, $context, $this->name);
     }
 
     /**
@@ -454,12 +449,11 @@ class Logger implements LoggerInterface
      *
      * @param  string  $message The log message
      * @param  array   $context The log context
-     * @param  string  $sourceChannel  The original source of the log message
      * @return Boolean Whether the record has been processed
      */
-    public function addError($message, array $context = array(), $sourceChannel = null)
+    public function addError($message, array $context = array())
     {
-        return $this->addRecord(static::ERROR, $message, $context, $sourceChannel);
+        return $this->addRecord(static::ERROR, $message, $context, $this->name);
     }
 
     /**
@@ -467,12 +461,11 @@ class Logger implements LoggerInterface
      *
      * @param  string  $message The log message
      * @param  array   $context The log context
-     * @param  string  $sourceChannel  The original source of the log message
      * @return Boolean Whether the record has been processed
      */
-    public function addCritical($message, array $context = array(), $sourceChannel = null)
+    public function addCritical($message, array $context = array())
     {
-        return $this->addRecord(static::CRITICAL, $message, $context, $sourceChannel);
+        return $this->addRecord(static::CRITICAL, $message, $context, $this->name);
     }
 
     /**
@@ -480,12 +473,11 @@ class Logger implements LoggerInterface
      *
      * @param  string  $message The log message
      * @param  array   $context The log context
-     * @param  string  $sourceChannel  The original source of the log message
      * @return Boolean Whether the record has been processed
      */
-    public function addAlert($message, array $context = array(), $sourceChannel = null)
+    public function addAlert($message, array $context = array())
     {
-        return $this->addRecord(static::ALERT, $message, $context, $sourceChannel);
+        return $this->addRecord(static::ALERT, $message, $context, $this->name);
     }
 
     /**
@@ -493,12 +485,11 @@ class Logger implements LoggerInterface
      *
      * @param  string  $message The log message
      * @param  array   $context The log context
-     * @param  string  $sourceChannel  The original source of the log message
      * @return Boolean Whether the record has been processed
      */
-    public function addEmergency($message, array $context = array(), $sourceChannel = null)
+    public function addEmergency($message, array $context = array())
     {
-        return $this->addRecord(static::EMERGENCY, $message, $context, $sourceChannel);
+        return $this->addRecord(static::EMERGENCY, $message, $context, $this->name);
     }
 
     /**
@@ -570,14 +561,13 @@ class Logger implements LoggerInterface
      * @param  mixed   $level   The log level
      * @param  string  $message The log message
      * @param  array   $context The log context
-     * @param  string  $sourceChannel  The original source of the log message
      * @return Boolean Whether the record has been processed
      */
-    public function log($level, $message, array $context = array(), $sourceChannel = null)
+    public function log($level, $message, array $context = array())
     {
         $level = static::toMonologLevel($level);
 
-        return $this->addRecord($level, $message, $context, $sourceChannel);
+        return $this->addRecord($level, $message, $context, $this->name);
     }
 
     /**
@@ -587,12 +577,11 @@ class Logger implements LoggerInterface
      *
      * @param  string  $message The log message
      * @param  array   $context The log context
-     * @param  string  $sourceChannel  The original source of the log message
      * @return Boolean Whether the record has been processed
      */
-    public function debug($message, array $context = array(), $sourceChannel = null)
+    public function debug($message, array $context = array())
     {
-        return $this->addRecord(static::DEBUG, $message, $context, $sourceChannel);
+        return $this->addRecord(static::DEBUG, $message, $context, $this->name);
     }
 
     /**
@@ -602,12 +591,11 @@ class Logger implements LoggerInterface
      *
      * @param  string  $message The log message
      * @param  array   $context The log context
-     * @param  string  $sourceChannel  The original source of the log message
      * @return Boolean Whether the record has been processed
      */
-    public function info($message, array $context = array(), $sourceChannel = null)
+    public function info($message, array $context = array())
     {
-        return $this->addRecord(static::INFO, $message, $context, $sourceChannel);
+        return $this->addRecord(static::INFO, $message, $context, $this->name);
     }
 
     /**
@@ -617,12 +605,11 @@ class Logger implements LoggerInterface
      *
      * @param  string  $message The log message
      * @param  array   $context The log context
-     * @param  string  $sourceChannel  The original source of the log message
      * @return Boolean Whether the record has been processed
      */
-    public function notice($message, array $context = array(), $sourceChannel = null)
+    public function notice($message, array $context = array())
     {
-        return $this->addRecord(static::NOTICE, $message, $context, $sourceChannel);
+        return $this->addRecord(static::NOTICE, $message, $context, $this->name);
     }
 
     /**
@@ -632,12 +619,11 @@ class Logger implements LoggerInterface
      *
      * @param  string  $message The log message
      * @param  array   $context The log context
-     * @param  string  $sourceChannel  The original source of the log message
      * @return Boolean Whether the record has been processed
      */
-    public function warn($message, array $context = array(), $sourceChannel = null)
+    public function warn($message, array $context = array())
     {
-        return $this->addRecord(static::WARNING, $message, $context, $sourceChannel);
+        return $this->addRecord(static::WARNING, $message, $context, $this->name);
     }
 
     /**
@@ -647,12 +633,11 @@ class Logger implements LoggerInterface
      *
      * @param  string  $message The log message
      * @param  array   $context The log context
-     * @param  string  $sourceChannel  The original source of the log message
      * @return Boolean Whether the record has been processed
      */
-    public function warning($message, array $context = array(), $sourceChannel = null)
+    public function warning($message, array $context = array())
     {
-        return $this->addRecord(static::WARNING, $message, $context, $sourceChannel);
+        return $this->addRecord(static::WARNING, $message, $context, $this->name);
     }
 
     /**
@@ -662,12 +647,11 @@ class Logger implements LoggerInterface
      *
      * @param  string  $message The log message
      * @param  array   $context The log context
-     * @param  string  $sourceChannel  The original source of the log message
      * @return Boolean Whether the record has been processed
      */
-    public function err($message, array $context = array(), $sourceChannel = null)
+    public function err($message, array $context = array())
     {
-        return $this->addRecord(static::ERROR, $message, $context, $sourceChannel);
+        return $this->addRecord(static::ERROR, $message, $context, $this->name);
     }
 
     /**
@@ -677,12 +661,11 @@ class Logger implements LoggerInterface
      *
      * @param  string  $message The log message
      * @param  array   $context The log context
-     * @param  string  $sourceChannel  The original source of the log message
      * @return Boolean Whether the record has been processed
      */
-    public function error($message, array $context = array(), $sourceChannel = null)
+    public function error($message, array $context = array())
     {
-        return $this->addRecord(static::ERROR, $message, $context, $sourceChannel);
+        return $this->addRecord(static::ERROR, $message, $context, $this->name);
     }
 
     /**
@@ -692,12 +675,11 @@ class Logger implements LoggerInterface
      *
      * @param  string  $message The log message
      * @param  array   $context The log context
-     * @param  string  $sourceChannel  The original source of the log message
      * @return Boolean Whether the record has been processed
      */
-    public function crit($message, array $context = array(), $sourceChannel = null)
+    public function crit($message, array $context = array())
     {
-        return $this->addRecord(static::CRITICAL, $message, $context, $sourceChannel);
+        return $this->addRecord(static::CRITICAL, $message, $context, $this->name);
     }
 
     /**
@@ -707,12 +689,11 @@ class Logger implements LoggerInterface
      *
      * @param  string  $message The log message
      * @param  array   $context The log context
-     * @param  string  $sourceChannel  The original source of the log message
      * @return Boolean Whether the record has been processed
      */
-    public function critical($message, array $context = array(), $sourceChannel = null)
+    public function critical($message, array $context = array())
     {
-        return $this->addRecord(static::CRITICAL, $message, $context, $sourceChannel);
+        return $this->addRecord(static::CRITICAL, $message, $context, $this->name);
     }
 
     /**
@@ -722,12 +703,11 @@ class Logger implements LoggerInterface
      *
      * @param  string  $message The log message
      * @param  array   $context The log context
-     * @param  string  $sourceChannel  The original source of the log message
      * @return Boolean Whether the record has been processed
      */
-    public function alert($message, array $context = array(), $sourceChannel = null)
+    public function alert($message, array $context = array())
     {
-        return $this->addRecord(static::ALERT, $message, $context, $sourceChannel);
+        return $this->addRecord(static::ALERT, $message, $context, $this->name);
     }
 
     /**
@@ -737,12 +717,11 @@ class Logger implements LoggerInterface
      *
      * @param  string  $message The log message
      * @param  array   $context The log context
-     * @param  string  $sourceChannel  The original source of the log message
      * @return Boolean Whether the record has been processed
      */
-    public function emerg($message, array $context = array(), $sourceChannel = null)
+    public function emerg($message, array $context = array())
     {
-        return $this->addRecord(static::EMERGENCY, $message, $context, $sourceChannel);
+        return $this->addRecord(static::EMERGENCY, $message, $context, $this->name);
     }
 
     /**
@@ -752,12 +731,11 @@ class Logger implements LoggerInterface
      *
      * @param  string  $message The log message
      * @param  array   $context The log context
-     * @param  string  $sourceChannel  The original source of the log message
      * @return Boolean Whether the record has been processed
      */
-    public function emergency($message, array $context = array(), $sourceChannel = null)
+    public function emergency($message, array $context = array())
     {
-        return $this->addRecord(static::EMERGENCY, $message, $context, $sourceChannel);
+        return $this->addRecord(static::EMERGENCY, $message, $context, $this->name);
     }
 
     /**
