@@ -313,13 +313,16 @@ class Logger implements LoggerInterface
     /**
      * Adds a log record.
      *
-     * @param  int     $level   The logging level
-     * @param  string  $message The log message
-     * @param  array   $context The log context
+     * @param  int     $level         The logging level
+     * @param  string  $message       The log message
+     * @param  array   $context       The log context
+     * @param  string  $sourceChannel The original source of the log message
      * @return Boolean Whether the record has been processed
      */
     public function addRecord($level, $message, array $context = array(), $sourceChannel = null)
     {
+        $sourceChannel ?: $this->name;
+
         if (!$this->handlers) {
             $this->pushHandler(new StreamHandler('php://stderr', static::DEBUG));
         }
@@ -341,9 +344,6 @@ class Logger implements LoggerInterface
         if (null === $handlerKey) {
             // Check if a parent logger should handle this message as well.
             if ($this->parent !== null) {
-                if ($sourceChannel === null) {
-                    $sourceChannel = $this->name;
-                }
                 return $this->parent->addRecord($level, $message, $context, $sourceChannel);
             }
             return false;
@@ -365,7 +365,7 @@ class Logger implements LoggerInterface
             'context' => $context,
             'level' => $level,
             'level_name' => $levelName,
-            'channel' => $sourceChannel !== null ? $sourceChannel : $this->name,
+            'channel' => $sourceChannel,
             'datetime' => $ts,
             'extra' => array(),
         );
@@ -384,9 +384,6 @@ class Logger implements LoggerInterface
 
         // Lets also propagate this to the parent, if it exists.
         if ($this->parent !== null) {
-            if ($sourceChannel === null) {
-                $sourceChannel = $this->name;
-            }
             $this->parent->addRecord($level, $message, $context, $sourceChannel);
             // We return true here because at least one logger (this one) handled this record.
             return true;
