@@ -128,6 +128,14 @@ class TestHandler extends AbstractProcessingHandler
         return false;
     }
 
+    public function hasRecordWithSource($source, $level)
+    {
+        return $this->hasRecordThatPasses(function ($rec) use ($source) {
+            return $source === $rec['channel'];
+        }, $level);
+    }
+
+
     /**
      * {@inheritdoc}
      */

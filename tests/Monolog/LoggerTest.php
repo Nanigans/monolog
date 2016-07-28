@@ -572,7 +572,7 @@ class LoggerTest extends \PHPUnit_Framework_TestCase
     {
         $parentLogger = new Logger('parent');
         $bubblingParentHandler = new TestHandler();
-        $nonBubblingParentHandler = new Testhandler(Logger::INFO, false);
+        $nonBubblingParentHandler = new TestHandler(Logger::INFO, false);
         $parentLogger->pushHandler($bubblingParentHandler);
         $parentLogger->pushHandler($nonBubblingParentHandler);
 
@@ -601,7 +601,7 @@ class LoggerTest extends \PHPUnit_Framework_TestCase
     public function testParentIsCalledWhenHandlerNotBubbleGroupHandlers()
     {
         $bubblingParentHandler = new TestHandler();
-        $nonBubblingParentHandler = new Testhandler(Logger::INFO, false);
+        $nonBubblingParentHandler = new TestHandler(Logger::INFO, false);
         $parentGroupHandler = new GroupHandler(
             array(
                 $nonBubblingParentHandler,
@@ -722,5 +722,198 @@ class LoggerTest extends \PHPUnit_Framework_TestCase
         $this->assertCount(0, $childRecords);
         $this->assertFalse($childHandler->hasRecordThatMatches('/^foo$/', Logger::WARNING));
 
+    }
+
+    /**
+     * When a parent logger inherits from a child, its handler should print
+     * the original source (the child), not the parents name.
+     *
+     * @covers Monolog\Logger::addRecord
+     */
+    public function testParentLogsWithChildsName()
+    {
+        $parentLogger = new Logger('parent');
+        $parentHandler = new TestHandler();
+        $parentLogger->pushHandler($parentHandler);
+
+        $childLogger = new Logger('child');
+        $childLogger->pushHandler(new TestHandler());
+        $childLogger->setParent($parentLogger);
+
+        $this->assertTrue($childLogger->warn('foo'));
+
+        $parentRecords = $parentHandler->getRecords();
+        $this->assertCount(1, $parentRecords);
+        $this->assertTrue($parentHandler->hasRecordWithSource('child', Logger::WARNING));
+        $this->assertFalse($parentHandler->hasRecordWithSource('parent', Logger::WARNING));
+    }
+
+    /**
+     * When a parent logger inherits from a child, its handler should print
+     * the original source (the child), not the parents name.
+     * This should work when the child is not handled.
+     *
+     * @covers Monolog\Logger::addRecord
+     */
+    public function testParentLogsWithChildsNameWhenChildNotHandled()
+    {
+        $parentLogger = new Logger('parent');
+        $parentHandler = new TestHandler();
+        $parentLogger->pushHandler($parentHandler);
+
+        $childLogger = new Logger('child');
+        $childLogger->pushHandler(new TestHandler(Logger::EMERGENCY));
+        $childLogger->setParent($parentLogger);
+
+        $this->assertTrue($childLogger->warn('foo'));
+
+        $parentRecords = $parentHandler->getRecords();
+        $this->assertCount(1, $parentRecords);
+        $this->assertTrue($parentHandler->hasRecordWithSource('child', Logger::WARNING));
+        $this->assertFalse($parentHandler->hasRecordWithSource('parent', Logger::WARNING));
+    }
+
+    /**
+     * When a parent logger inherits from a child, its handler should print
+     * the original source (the child), not the parents name.
+     * This should work when the child is handled.
+     *
+     * @covers Monolog\Logger::addRecord
+     */
+    public function testParentLogsWithChildsNameWhenChildHandled() {
+        $parentLogger = new Logger('parent');
+        $parentHandler = new TestHandler();
+        $parentLogger->pushHandler($parentHandler);
+
+        $childLogger = new Logger('child');
+        $childHandler = new TestHandler(Logger::WARNING);
+        $childLogger->pushHandler($childHandler);
+        $childLogger->setParent($parentLogger);
+
+        $this->assertTrue($childLogger->warn('foo'));
+
+        $childRecords = $childHandler->getRecords();
+        $parentRecords = $parentHandler->getRecords();
+        $this->assertCount(1, $parentRecords);
+        $this->assertTrue($parentHandler->hasRecordWithSource('child', Logger::WARNING));
+        $this->assertFalse($parentHandler->hasRecordWithSource('parent', Logger::WARNING));
+    }
+    /**
+     * When a parent logger inherits from a grandchild, its handler should print
+     * the original source (the grandchild), not the parents name or the child's name.
+     *
+     * @covers Monolog\Logger::addRecord
+     */
+    public function testParentLogsWithGrandChildsName()
+    {
+        $parentLogger = new Logger('parent');
+        $parentHandler = new TestHandler();
+        $parentLogger->pushHandler($parentHandler);
+
+        $childLogger = new Logger('child');
+        $childHandler = new TestHandler();
+        $childLogger->pushHandler($childHandler);
+        $childLogger->setParent($parentLogger);
+
+        $grandchildLogger = new Logger('grandchild');
+        $grandchildLogger->pushHandler(new TestHandler());
+        $grandchildLogger->setParent($childLogger);
+
+        $this->assertTrue($grandchildLogger->warn('foo'));
+
+        $childRecords = $childHandler->getRecords();
+        $this->assertCount(1, $childRecords);
+        $this->assertTrue($childHandler->hasRecordWithSource('grandchild', Logger::WARNING));
+        $this->assertFalse($childHandler->hasRecordWithSource('parent', Logger::WARNING));
+        $this->assertFalse($childHandler->hasRecordWithSource('child', Logger::WARNING));
+
+        $grandparentRecords = $parentHandler->getRecords();
+        $this->assertCount(1, $grandparentRecords);
+        $this->assertTrue($parentHandler->hasRecordWithSource('grandchild', Logger::WARNING));
+        $this->assertFalse($parentHandler->hasRecordWithSource('parent', Logger::WARNING));
+        $this->assertFalse($parentHandler->hasRecordWithSource('child', Logger::WARNING));
+    }
+
+    /**
+     * When a parent logger inherits from a child, its handler should print
+     * the original source (the child), not the parents name. Bubble behavior
+     * should not effect this.
+     *
+     * @covers Monolog\Logger::addRecord
+     */
+    public function testParentLogsWithChildsNameWhenBubbleIsFalse()
+    {
+        $parentLogger = new Logger('parent');
+        $parentHandler = new TestHandler();
+        $parentLogger->pushHandler($parentHandler);
+
+        $childLogger = new Logger('child');
+        $childLogger->pushHandler(new TestHandler(Logger::WARNING, false));
+        $childLogger->setParent($parentLogger);
+
+        $this->assertTrue($childLogger->warn('foo'));
+
+        $parentRecords = $parentHandler->getRecords();
+        $this->assertCount(1, $parentRecords);
+        $this->assertTrue($parentHandler->hasRecordWithSource('child', Logger::WARNING));
+        $this->assertFalse($parentHandler->hasRecordWithSource('parent', Logger::WARNING));
+    }
+
+
+    /**
+     * When a parent logger inherits from a child, its handler should print
+     * the original source (the child), not the parents name.
+     * Multiple handlers should not affect this behavior.
+     *
+     * @covers Monolog\Logger::addRecord
+     */
+    public function testParentLogsWithChildsNameWhenMultipleHandlers()
+    {
+        $parentLogger = new Logger('parent');
+        $parentHandler = new TestHandler();
+        $parentHandler2 = new TestHandler();
+        $parentLogger->pushHandler($parentHandler);
+        $parentLogger->pushHandler($parentHandler2);
+
+        $childLogger = new Logger('child');
+        $childLogger->pushHandler(new TestHandler(Logger::EMERGENCY));
+        $childLogger->pushHandler(new TestHandler(Logger::CRITICAL));
+        $childLogger->setParent($parentLogger);
+
+        $this->assertTrue($childLogger->warn('foo'));
+
+        $parentRecords = $parentHandler->getRecords();
+        $this->assertCount(1, $parentRecords);
+        $this->assertTrue($parentHandler->hasRecordWithSource('child', Logger::WARNING));
+        $this->assertFalse($parentHandler->hasRecordWithSource('parent', Logger::WARNING));
+    }
+
+
+    /**
+     * When a parent logger inherits from a child, its handler should print
+     * the original source (the child), not the parents name.
+     * Multiple handlers should not affect this behavior.
+     *
+     * @covers Monolog\Logger::addRecord
+     */
+    public function testParentLogsWithChildsNameWhenMultipleHandlersHandled()
+    {
+        $parentLogger = new Logger('parent');
+        $parentHandler = new TestHandler();
+        $parentHandler2 = new TestHandler();
+        $parentLogger->pushHandler($parentHandler);
+        $parentLogger->pushHandler($parentHandler2);
+
+        $childLogger = new Logger('child');
+        $childLogger->pushHandler(new TestHandler(Logger::WARNING));
+        $childLogger->pushHandler(new TestHandler(Logger::WARNING));
+        $childLogger->setParent($parentLogger);
+
+        $this->assertTrue($childLogger->warn('foo'));
+
+        $parentRecords = $parentHandler->getRecords();
+        $this->assertCount(1, $parentRecords);
+        $this->assertTrue($parentHandler->hasRecordWithSource('child', Logger::WARNING));
+        $this->assertFalse($parentHandler->hasRecordWithSource('parent', Logger::WARNING));
     }
 }
